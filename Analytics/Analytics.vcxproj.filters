@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>2a8db2b6-1596-41a7-b64b-8d616b889f55</UniqueIdentifier>
+      <Extensions>bmp;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
+    </Filter>
+    <Filter Include="Analytics">
+      <UniqueIdentifier>{df6278a1-1c71-436c-b249-08b301cd0bef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Analytics\WasapiAudio">
+      <UniqueIdentifier>{92d5d6a4-0125-459a-82c4-d08dcc5abeab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Analytics\Buffer">
+      <UniqueIdentifier>{e47b121e-09fb-4976-85c3-32036463b55c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Analytics\Engines">
+      <UniqueIdentifier>{758048b4-eb7c-406f-a08f-73386f2b98c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Pages">
+      <UniqueIdentifier>{61327384-b247-4668-80c4-976002a58673}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Analytics\StreamAnalytics">
+      <UniqueIdentifier>{6c3f3335-dcf5-43a5-ac1a-acaf3f871b78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Controls">
+      <UniqueIdentifier>{847fad25-15ef-4129-b399-8734df57b83a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>c41de3c9-0c1b-43b8-9ff1-a408c686e659</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Analytics\WavWriter">
+      <UniqueIdentifier>{70e31641-e18a-45bc-be07-4c680b9fe548}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="App.xaml.cpp" />
+    <ClCompile Include="MainPage.xaml.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="AnalyticsConfiguration.cpp" />
+    <ClCompile Include="MFSampleGenerator.cpp">
+      <Filter>Analytics\WasapiAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="WASAPIRenderer.cpp">
+      <Filter>Analytics\WasapiAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="StreamAnalytics.cpp">
+      <Filter>Analytics\StreamAnalytics</Filter>
+    </ClCompile>
+    <ClCompile Include="AnalyzeRecording.xaml.cpp" />
+    <ClCompile Include="RealtimeAnalysis.xaml.cpp" />
+    <ClCompile Include="Recording.xaml.cpp" />
+    <ClCompile Include="AudioControl.xaml.cpp" />
+    <ClCompile Include="AudioControlData.cpp">
+      <Filter>Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="WavWriter.cpp">
+      <Filter>Analytics\WavWriter</Filter>
+    </ClCompile>
+    <ClCompile Include="WASAPICapture.cpp">
+      <Filter>Analytics\WasapiAudio</Filter>
+    </ClCompile>
+    <ClCompile Include="EngineParent.cpp">
+      <Filter>Analytics\Engines</Filter>
+    </ClCompile>
+    <ClCompile Include="RealtimeAnalyticsEngine.cpp">
+      <Filter>Analytics\Engines</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiRingBuffer.cpp">
+      <Filter>Analytics\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="RingBuffer.cpp">
+      <Filter>Analytics\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="SyncMultiRingBuffer.cpp">
+      <Filter>Analytics\Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordingAnalyticsEngine.cpp">
+      <Filter>Analytics\Engines</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="App.xaml.h" />
+    <ClInclude Include="MainPage.xaml.h" />
+    <ClInclude Include="AnalyticsConfiguration.h" />
+    <ClInclude Include="MFSampleGenerator.h">
+      <Filter>Analytics\WasapiAudio</Filter>
+    </ClInclude>
+    <ClInclude Include="WASAPIRenderer.h">
+      <Filter>Analytics\WasapiAudio</Filter>
+    </ClInclude>
+    <ClInclude Include="DeviceState.h">
+      <Filter>Analytics\WasapiAudio</Filter>
+    </ClInclude>
+    <ClInclude Include="StreamAnalytics.h">
+      <Filter>Analytics\StreamAnalytics</Filter>
+    </ClInclude>
+    <ClInclude Include="AnalyzeRecording.xaml.h" />
+    <ClInclude Include="RealtimeAnalysis.xaml.h" />
+    <ClInclude Include="Recording.xaml.h" />
+    <ClInclude Include="AudioControl.xaml.h" />
+    <ClInclude Include="AudioControlData.h">
+      <Filter>Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="WavWriter.h">
+      <Filter>Analytics\WavWriter</Filter>
+    </ClInclude>
+    <ClInclude Include="WASAPICapture.h">
+      <Filter>Analytics\WasapiAudio</Filter>
+    </ClInclude>
+    <ClInclude Include="EngineParent.h">
+      <Filter>Analytics\Engines</Filter>
+    </ClInclude>
+    <ClInclude Include="RealtimeAnalyticsEngine.h">
+      <Filter>Analytics\Engines</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiRingBuffer.h">
+      <Filter>Analytics\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="IMultiRingBufferProducer.h">
+      <Filter>Analytics\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="IMultiRingBufferConsumer.h">
+      <Filter>Analytics\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="RingBuffer.h">
+      <Filter>Analytics\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="SyncMultiRingBuffer.h">
+      <Filter>Analytics\Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordingAnalyticsEngine.h">
+      <Filter>Analytics\Engines</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\LockScreenLogo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Analytics_TemporaryKey.pfx" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="AnalyzeRecording.xaml">
+      <Filter>Pages</Filter>
+    </Page>
+    <Page Include="RealtimeAnalysis.xaml">
+      <Filter>Pages</Filter>
+    </Page>
+    <Page Include="Recording.xaml">
+      <Filter>Pages</Filter>
+    </Page>
+    <Page Include="AudioControl.xaml">
+      <Filter>Controls</Filter>
+    </Page>
+    <Page Include="MainPage.xaml">
+      <Filter>Pages</Filter>
+    </Page>
+  </ItemGroup>
+</Project>
