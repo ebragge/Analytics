@@ -13,7 +13,11 @@ public:
 	
 	//From IRingBufferConsumer
 	virtual void ConsumeNewWindow(std::vector<RingBuffer::Window> &windows);
+	virtual void SampleInformation(UINT cChannels, UINT wBitsPerSample, UINT nSamplesPerSec);
+	virtual void StateChanged(State newState);
+
 	virtual UINT WindowSize();
+	virtual bool Ready();
 
 protected:
 

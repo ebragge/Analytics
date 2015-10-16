@@ -33,5 +33,6 @@ protected:
 	std::thread m_hConsumerThread;
 	volatile std::atomic<bool> m_bRunThread;
 	UINT m_samplesPerSecond;
+	bool m_bSampleInformationCalled = false;
 };
 

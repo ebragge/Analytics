@@ -5,40 +5,49 @@
 
 using namespace Windows::Storage;
 using namespace Windows::System::Threading;
-using namespace Wasapi;
+using namespace WASAPIAudio;
 using namespace Platform;
 
-WavWriter::WavWriter(int bufferSizes, int bitsPerSample, int numberOfDevices, int channelsPerDevice) :
+WavWriter::WavWriter() :
 	
 	m_ContentStream(nullptr),
 	m_OutputStream(nullptr),
-	m_WAVDataWriter(nullptr)
+	m_WAVDataWriter(nullptr),
+	m_nChannels(0),
+	m_nBitsPerSample(0),
+	m_nSamplesPerSec(0),
+	m_bReady(false),
+	m_cbDataSize(0),
+	m_cbFlushCounter(0)
 {
-	m_bitsPerSample = bitsPerSample;
-	//m_numberOfDevices = numberOfDevices;
-	//m_channelsPerDevice = channelsPerDevice;
 
 }
 
 WavWriter::~WavWriter()
 {
-
+	m_ContentStream = nullptr;
+	m_OutputStream = nullptr;
+	m_WAVDataWriter = nullptr;
 }
+
 //
 //  CreateWAVFile()
 //
 //  Creates a WAV file in KnownFolders::MusicLibrary
 //
-HRESULT WavWriter::CreateWAVFile(WAVEFORMATEX *mixFormat)
+void WavWriter::CreateWAVFile()
 {
-	memcpy(&m_MixFormat, mixFormat, sizeof(WAVEFORMATEXTENSIBLE));
-
+	m_MixFormat.SubFormat = KSDATAFORMAT_SUBTYPE_PCM;
 	m_MixFormat.Format.cbSize = 22;
-	m_MixFormat.Format.nChannels = 2;
-	m_MixFormat.Format.nBlockAlign *= 2;
-	m_MixFormat.Format.nAvgBytesPerSec *= 2;
+	m_MixFormat.Format.wFormatTag = WAVE_FORMAT_EXTENSIBLE;
+	m_MixFormat.Format.wBitsPerSample = m_nBitsPerSample;
+	m_MixFormat.Format.nChannels = m_nChannels;
+	m_MixFormat.Format.nSamplesPerSec = m_nSamplesPerSec;
+	m_MixFormat.Format.nBlockAlign = m_nChannels*(m_nBitsPerSample / 8);
+	m_MixFormat.Format.nAvgBytesPerSec = m_nSamplesPerSec*m_nChannels*(m_nBitsPerSample / 8);
+	m_MixFormat.Samples.wValidBitsPerSample = m_MixFormat.Format.wBitsPerSample;
+	m_MixFormat.dwChannelMask = 3;
 
-	
 	// Create the WAV file, appending a number if file already exists
 	concurrency::task<StorageFile^>(KnownFolders::MusicLibrary->CreateFileAsync(AUDIO_FILE_NAME, CreationCollisionOption::GenerateUniqueName)).then(
 		[this](StorageFile^ file)
@@ -50,9 +59,9 @@ HRESULT WavWriter::CreateWAVFile(WAVEFORMATEX *mixFormat)
 
 		return file->OpenAsync(FileAccessMode::ReadWrite);
 	})
-
-		// Then create a RandomAccessStream
-		.then([this](IRandomAccessStream^ stream)
+	
+	// Then create a RandomAccessStream
+	.then([this](IRandomAccessStream^ stream)
 	{
 		if (nullptr == stream)
 		{
@@ -65,6 +74,7 @@ HRESULT WavWriter::CreateWAVFile(WAVEFORMATEX *mixFormat)
 
 		// Create the DataWriter
 		m_WAVDataWriter = ref new DataWriter(m_OutputStream);
+		
 		if (nullptr == m_WAVDataWriter)
 		{
 			ThrowIfFailed(E_OUTOFMEMORY);
@@ -76,14 +86,16 @@ HRESULT WavWriter::CreateWAVFile(WAVEFORMATEX *mixFormat)
 			0,                  // Total size of WAV (will be filled in later)
 			FCC('WAVE'),        // WAVE FourCC
 			FCC('fmt '),        // Start of 'fmt ' chunk
-			sizeof(WAVEFORMATEXTENSIBLE)     // Size of fmt chunk
+			sizeof(WAVEFORMATEX) + m_MixFormat.Format.cbSize     // Size of fmt chunk
 		};
 
+		//WAVEFORMATEXTENSIBLE
 		DWORD data[] = { FCC('data'), 0 };  // Start of 'data' chunk
 
 		auto headerBytes = ref new Platform::Array<BYTE>(reinterpret_cast<BYTE*>(header), sizeof(header));
-		auto formatBytes = ref new Platform::Array<BYTE>(reinterpret_cast<BYTE*>(&m_MixFormat), sizeof(WAVEFORMATEXTENSIBLE));
+		auto formatBytes = ref new Platform::Array<BYTE>(reinterpret_cast<BYTE*>(&m_MixFormat), sizeof(WAVEFORMATEX) + m_MixFormat.Format.cbSize);
 		auto dataBytes = ref new Platform::Array<BYTE>(reinterpret_cast<BYTE*>(data), sizeof(data));
+		int tmp = sizeof(WAVEFORMATEXTENSIBLE);
 
 		if ((nullptr == headerBytes) || (nullptr == formatBytes) || (nullptr == dataBytes))
 		{
@@ -98,26 +110,30 @@ HRESULT WavWriter::CreateWAVFile(WAVEFORMATEX *mixFormat)
 		return m_WAVDataWriter->StoreAsync();
 	})
 
-		// Wait for file data to be written to file
-		.then([this](unsigned int BytesWritten)
+	// Wait for file data to be written to file
+	.then([this](unsigned int BytesWritten)
 	{
 		m_cbHeaderSize = BytesWritten;
 		return m_WAVDataWriter->FlushAsync();
 	})
 
-		// Our file is ready to go, so we can now signal that initialization is finished
-		.then([this](bool f)
+	// Our file is ready so we can signal that initialization is finished
+	.then([this](bool f)
 	{
-
+		m_bReady = true;
+		OutputDebugString(L"CreateWAVFile - Done");
 	});
-
-	return S_OK;
 }
 
 HRESULT WavWriter::FixWAVHeader()
 {
 	concurrency::task<unsigned int>(m_WAVDataWriter->StoreAsync()).then(
 		[this](unsigned int BytesWritten)
+	{
+		BytesWritten;
+		return m_WAVDataWriter->FlushAsync();
+	})
+	.then([this](bool flushed)
 	{
 		auto DataSizeByte = ref new Platform::Array<BYTE>(reinterpret_cast<BYTE*>(&m_cbDataSize), sizeof(DWORD));
 
@@ -128,7 +144,7 @@ HRESULT WavWriter::FixWAVHeader()
 
 		concurrency::task<unsigned int>(m_WAVDataWriter->StoreAsync()).then(
 			[this](unsigned int BytesWritten)
-		{
+			{
 			DWORD cbTotalSize = m_cbDataSize + m_cbHeaderSize - 8;
 			auto TotalSizeByte = ref new Platform::Array<BYTE>(reinterpret_cast<BYTE*>(&cbTotalSize), sizeof(DWORD));
 
@@ -143,11 +159,12 @@ HRESULT WavWriter::FixWAVHeader()
 				return m_WAVDataWriter->FlushAsync();
 			})
 
-				.then(
-					[this](bool f)
+		.then(
+			[this](bool f)
 			{
+				
 				//Done
-				OutputDebugString(L"Done");
+				OutputDebugString(L"FixWAVHeader - Done");
 			});
 		});
 	});
@@ -155,33 +172,49 @@ HRESULT WavWriter::FixWAVHeader()
 	return S_OK;
 }
 
-/*
-void WavWriter::Process(const std::vector<std::vector<INT16>> &buffer, const std::vector<int> &nextBufferItemToWrite)
+//From Setters IMultiRingBufferConsumer
+void WavWriter::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
 {
-	int smallest = GetSmallestDeltaBetweenWavAndNextBuffer(nextBufferItemToWrite);
+	Platform::Array<BYTE, 1> ^dataByte = ref new Platform::Array<BYTE, 1>(m_cWindowSize*m_nChannels*m_nBitsPerSample / 8);
+	auto p = (INT16*)dataByte->Data;
 
-	if (smallest > 100) //Store only if there are more than 100 frames
+	for (size_t step = 0; step < m_cWindowSize; step++)
 	{
-	Platform::Array<BYTE, 1> ^dataByte = ref new Platform::Array<BYTE, 1>(smallest*m_numberOfDevices*m_channelsPerDevice*m_bitsPerSample / 8);
-		auto p = (INT16*)dataByte->Data;
-
-		for (size_t count = 0; count < smallest; count++)
+		for (size_t channel = 0; channel < m_nChannels; channel++)
 		{
-			for (size_t i = 0; i < m_numberOfDevices; i++)
-			{
-				int next = GetNextItem(i);
-
-				for (size_t j = 0; j < m_channelsPerDevice; j++)
-				{
-					*p = buffer[i*m_channelsPerDevice + j][next];
-					p++;
-				}
-			}
+			*p = windows[channel][step];
+			p++;
 		}
-		Write(dataByte);
+	}
+
+	Write(dataByte);
+}
+
+void WavWriter::SampleInformation(UINT nChannels, UINT wBitsPerSample, UINT nSamplesPerSec)
+{
+	m_nChannels = nChannels;
+	m_nBitsPerSample = wBitsPerSample;
+	m_nSamplesPerSec = nSamplesPerSec;
+	CreateWAVFile();
+}
+
+void WavWriter::StateChanged(IMultiRingBufferConsumer::State newState)
+{
+	if (newState == IMultiRingBufferConsumer::State::Stopped)
+	{
+		FixWAVHeader();
 	}
 }
-*/
+
+bool WavWriter::Ready()
+{
+	return m_bReady;
+}
+
+UINT WavWriter::WindowSize()
+{
+	return m_cWindowSize;
+}
 
 void WavWriter::Write(const Platform::Array<BYTE, 1> ^bytes)
 {
@@ -201,7 +234,7 @@ void WavWriter::Write(const Platform::Array<BYTE, 1> ^bytes)
 		concurrency::task<unsigned int>(m_WAVDataWriter->StoreAsync()).then(
 			[this](unsigned int BytesWritten)
 		{
-
+			return m_WAVDataWriter->FlushAsync();
 		});
 	}
 }

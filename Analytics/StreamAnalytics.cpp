@@ -59,3 +59,16 @@ void StreamAnalytics::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
 	}
 }
 
+void StreamAnalytics::SampleInformation(UINT cChannels, UINT wBitsPerSample, UINT nSamplesPerSec)
+{
+
+}
+void StreamAnalytics::StateChanged(State newState)
+{
+
+}
+
+bool StreamAnalytics::Ready()
+{
+	return true;
+}

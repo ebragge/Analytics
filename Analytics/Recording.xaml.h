@@ -6,6 +6,8 @@
 #pragma once
 
 #include "Recording.g.h"
+#include "RealtimeAnalyticsEngine.h"
+#include "WavWriter.h"
 
 namespace Analytics
 {
@@ -21,5 +23,8 @@ namespace Analytics
 	private:
 		void btnPlay_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void btnStop_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+
+		RealtimeAnalyticsEngine^ m_realtimeEngine;
+		WavWriter *m_pWavWriter;
 	};
 }

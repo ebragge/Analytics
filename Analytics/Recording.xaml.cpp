@@ -24,15 +24,19 @@ using namespace Windows::UI::Xaml::Navigation;
 Recording::Recording()
 {
 	InitializeComponent();
+	m_realtimeEngine = ref new RealtimeAnalyticsEngine();
 }
 
 void Recording::btnPlay_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-
+	m_pWavWriter = new WavWriter();
+	//m_pWavWriter->SetObserver(audioCtrl->m_pData);
+	m_realtimeEngine->SetConsumer(m_pWavWriter);
+	m_realtimeEngine->InitializeAsync();
 }
 
 
 void Recording::btnStop_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-	
+	m_realtimeEngine->StopAsync();
 }

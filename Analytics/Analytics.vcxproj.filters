@@ -20,17 +20,14 @@
     <Filter Include="Pages">
       <UniqueIdentifier>{61327384-b247-4668-80c4-976002a58673}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Analytics\StreamAnalytics">
-      <UniqueIdentifier>{6c3f3335-dcf5-43a5-ac1a-acaf3f871b78}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Controls">
       <UniqueIdentifier>{847fad25-15ef-4129-b399-8734df57b83a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Common">
       <UniqueIdentifier>c41de3c9-0c1b-43b8-9ff1-a408c686e659</UniqueIdentifier>
     </Filter>
-    <Filter Include="Analytics\WavWriter">
-      <UniqueIdentifier>{70e31641-e18a-45bc-be07-4c680b9fe548}</UniqueIdentifier>
+    <Filter Include="Analytics\Consumers">
+      <UniqueIdentifier>{6c3f3335-dcf5-43a5-ac1a-acaf3f871b78}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,7 +45,7 @@
       <Filter>Analytics\WasapiAudio</Filter>
     </ClCompile>
     <ClCompile Include="StreamAnalytics.cpp">
-      <Filter>Analytics\StreamAnalytics</Filter>
+      <Filter>Analytics\Consumers</Filter>
     </ClCompile>
     <ClCompile Include="AnalyzeRecording.xaml.cpp" />
     <ClCompile Include="RealtimeAnalysis.xaml.cpp" />
@@ -56,9 +53,6 @@
     <ClCompile Include="AudioControl.xaml.cpp" />
     <ClCompile Include="AudioControlData.cpp">
       <Filter>Controls</Filter>
-    </ClCompile>
-    <ClCompile Include="WavWriter.cpp">
-      <Filter>Analytics\WavWriter</Filter>
     </ClCompile>
     <ClCompile Include="WASAPICapture.cpp">
       <Filter>Analytics\WasapiAudio</Filter>
@@ -81,6 +75,9 @@
     <ClCompile Include="RecordingAnalyticsEngine.cpp">
       <Filter>Analytics\Engines</Filter>
     </ClCompile>
+    <ClCompile Include="WavWriter.cpp">
+      <Filter>Analytics\Consumers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -97,7 +94,7 @@
       <Filter>Analytics\WasapiAudio</Filter>
     </ClInclude>
     <ClInclude Include="StreamAnalytics.h">
-      <Filter>Analytics\StreamAnalytics</Filter>
+      <Filter>Analytics\Consumers</Filter>
     </ClInclude>
     <ClInclude Include="AnalyzeRecording.xaml.h" />
     <ClInclude Include="RealtimeAnalysis.xaml.h" />
@@ -105,9 +102,6 @@
     <ClInclude Include="AudioControl.xaml.h" />
     <ClInclude Include="AudioControlData.h">
       <Filter>Controls</Filter>
-    </ClInclude>
-    <ClInclude Include="WavWriter.h">
-      <Filter>Analytics\WavWriter</Filter>
     </ClInclude>
     <ClInclude Include="WASAPICapture.h">
       <Filter>Analytics\WasapiAudio</Filter>
@@ -135,6 +129,9 @@
     </ClInclude>
     <ClInclude Include="RecordingAnalyticsEngine.h">
       <Filter>Analytics\Engines</Filter>
+    </ClInclude>
+    <ClInclude Include="WavWriter.h">
+      <Filter>Analytics\Consumers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

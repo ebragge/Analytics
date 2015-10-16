@@ -118,24 +118,35 @@ std::thread MultiRingBuffer::ConsumerThread()
 			{
 				if (m_bRunThread)
 				{
-					while (GetMaxWindowSize() > 200)
+					if (!m_bSampleInformationCalled)
 					{
-						std::vector<RingBuffer::Window> windows = std::vector<RingBuffer::Window>();
-						for (size_t i = 0; i < m_vBuffer.size(); i++)
-						{
-							windows.push_back(m_vBuffer[i].GetWindow(m_pEventHandler->WindowSize()));
-						}
+						m_pEventHandler->SampleInformation(m_vBuffer.size(), m_cBytesPerSample * 8, m_samplesPerSecond);
+						m_pEventHandler->StateChanged(IMultiRingBufferConsumer::State::Started);
+						m_bSampleInformationCalled = true;
+					}
 
-						m_pEventHandler->ConsumeNewWindow(windows);
-
-						for (size_t i = 0; i < m_vBuffer.size(); i++)
+					if (m_pEventHandler->Ready())
+					{
+						while (GetMaxWindowSize() > m_pEventHandler->WindowSize())
 						{
-							m_vBuffer[i].MoveWindow(200);
+							std::vector<RingBuffer::Window> windows = std::vector<RingBuffer::Window>();
+							for (size_t i = 0; i < m_vBuffer.size(); i++)
+							{
+								windows.push_back(m_vBuffer[i].GetWindow(m_pEventHandler->WindowSize()));
+							}
+
+							m_pEventHandler->ConsumeNewWindow(windows);
+
+							for (size_t i = 0; i < m_vBuffer.size(); i++)
+							{
+								m_vBuffer[i].MoveWindow(m_pEventHandler->WindowSize());
+							}
 						}
 					}
 				}
 			}
-		}	
+		}
+		m_pEventHandler->StateChanged(IMultiRingBufferConsumer::State::Stopped);
 		OutputDebugString(L"ConsumerThread killed\n");
 	});
 }
