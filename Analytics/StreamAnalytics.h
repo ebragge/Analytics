@@ -27,5 +27,5 @@ protected:
 	UINT32 m_counter;
 
 protected:
-	AudioControlData *m_pOBserver;
+	AudioControlData *m_pObserver;
 };

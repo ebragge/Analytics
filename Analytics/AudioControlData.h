@@ -5,9 +5,9 @@ public:
 	AudioControlData();
 	~AudioControlData();
 	
-	void AddData(std::vector<INT16> &data);
-	void AddData(INT16);
-	std::vector<INT16> GetData();
+	void AddData(std::vector<INT16> &vData);
+	void AddData(INT16 iData);
+	std::vector<INT16> GetData(UINT &startPos);
 
 	void SetGraph(UINT ch, const std::vector<INT16> &data);
 	std::vector<INT16> GetGraph(UINT ch);

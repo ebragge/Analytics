@@ -40,11 +40,14 @@ void AudioControl::OnDraw(::Microsoft::Graphics::Canvas::UI::Xaml::CanvasAnimate
 	float step_y = DataHeight / 32767;
 	float half = DataHeight / 2;
 	
-	std::vector<INT16> data = m_pData->GetData();
+	UINT pos = 0;
+
+	std::vector<INT16> data = m_pData->GetData(pos);
 
 	for (size_t i = 0; i < m_pData->m_vBuffer.size(); i++)
 	{
-		args->DrawingSession->DrawRectangle(i*step, half, step, data[i], brush);
+		args->DrawingSession->DrawRectangle(step*i, half, step, data[pos], brush);
+		pos = ++pos < data.size() ? pos : 0;
 	}
 
 	//We draw graphs

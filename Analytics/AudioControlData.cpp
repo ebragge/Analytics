@@ -16,34 +16,25 @@ AudioControlData::~AudioControlData()
 
 }
 
-void AudioControlData::AddData(std::vector<INT16> &data)
+void AudioControlData::AddData(std::vector<INT16> &vData)
 {
 	std::unique_lock<std::mutex> lock(mMutex);
 
-	for (size_t i = 0; i < data.size(); i++)
+	for (size_t i = 0; i < vData.size(); i++)
 	{
-		AddData(data[i]);
+		m_write = ++m_write < m_vBuffer.size() ?
+			m_write :
+			0;
+
+		m_vBuffer[m_write] = vData[i];
 	}
 }
 
-void AudioControlData::AddData(INT16 data)
-{
-	m_write = ++m_write < 1000 ?
-		m_write :
-		0;
-
-	if (m_write == 0)
-	{
-		m_vBuffer = std::vector<int16>(1000, 0);
-	}
-	m_vBuffer[m_write] = data;
-}
-
-std::vector<INT16> AudioControlData::GetData()
+std::vector<INT16> AudioControlData::GetData(UINT &startPos)
 {
 	std::unique_lock<std::mutex> lock(mMutex);
 	std::vector<INT16> vect(m_vBuffer);
-
+	startPos = (UINT)m_write;
 	return vect;
 }
 
