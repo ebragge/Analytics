@@ -8,16 +8,15 @@ public:
 	{
 	public:
 		Window(RingBuffer &parent, UINT size) :
-			m_parent(parent),
-			m_size(size),
-			m_pos(0)
+			m_rParent(parent),
+			m_size(size)
 		{
 
 		}
 
 		const INT16& operator[](UINT idx) const
 		{
-			return m_parent.GetValueFromWindowStart(idx);
+			return m_rParent.GetValueFromWindowStart(idx);
 		};
 
 		const std::vector<INT16> getWindow() const
@@ -26,14 +25,13 @@ public:
 
 			for (size_t i = 0; i < m_size; i++)
 			{
-				window.push_back(m_parent.GetValueFromWindowStart(i));
+				window.push_back(m_rParent.GetValueFromWindowStart(i));
 			}
 			return window;
 		};
 
 	private:
-		RingBuffer &m_parent;
-		UINT m_pos;
+		RingBuffer &m_rParent;
 		size_t m_size;
 	};
 

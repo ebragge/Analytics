@@ -45,7 +45,7 @@ void MultiRingBuffer::AddChannelsInternal(UINT cChannels, UINT cSamplesPerSecond
 MultiRingBuffer::~MultiRingBuffer()
 {
 	m_bRunThread = false;
-	m_NewDataSignal.notify_all();
+	m_cvNewDataSignal.notify_all();
 	m_hConsumerThread.join();
 }
 
@@ -79,7 +79,7 @@ void MultiRingBuffer::AddDataInternal(BYTE* pData, DWORD cbBytes, UINT cChannels
 				pi16++;
 			}
 		}
-		m_NewDataSignal.notify_all();
+		m_cvNewDataSignal.notify_all();
 	}
 }
 
@@ -112,7 +112,7 @@ std::thread MultiRingBuffer::ConsumerThread()
 		while (m_bRunThread)
 		{
 			std::unique_lock<std::mutex> lock(mMutex);
-			m_NewDataSignal.wait(lock);
+			m_cvNewDataSignal.wait(lock);
 			
 			if (m_pEventHandler != nullptr)
 			{

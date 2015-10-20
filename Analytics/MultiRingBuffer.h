@@ -28,7 +28,7 @@ protected:
 	UINT m_cBufferSize;
 	UINT m_cBytesPerSample;
 	IMultiRingBufferConsumer *m_pEventHandler;
-	std::condition_variable m_NewDataSignal;
+	std::condition_variable m_cvNewDataSignal;
 	std::mutex mMutex;
 	std::thread m_hConsumerThread;
 	volatile std::atomic<bool> m_bRunThread;

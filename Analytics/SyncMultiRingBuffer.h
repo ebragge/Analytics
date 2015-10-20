@@ -18,10 +18,9 @@ public:
 	virtual void AddChannels(UINT cChannels, UINT cSamplesPerSecond, UINT cBytesPerSample, UINT cBufferSize, std::vector<UINT> &rChannels);
 
 private:
-	std::vector<UINT64> m_InitQPCPositionPerChannel;
-	std::vector<UINT64>	m_InitPositionPerChannel;
-
-	SyncRingBufferState m_state;
+	std::vector<UINT64> m_vInitQPCPositionPerChannel;
+	std::vector<UINT64>	m_vInitPositionPerChannel;
+	SyncRingBufferState m_eState;
 	
 };
 
