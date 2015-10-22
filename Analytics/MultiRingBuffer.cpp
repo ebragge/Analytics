@@ -135,11 +135,11 @@ std::thread MultiRingBuffer::ConsumerThread()
 								windows.push_back(m_vBuffer[i].GetWindow(m_pEventHandler->WindowSize()));
 							}
 
-							m_pEventHandler->ConsumeNewWindow(windows);
+							UINT consumed = m_pEventHandler->ConsumeNewWindow(windows);
 
 							for (size_t i = 0; i < m_vBuffer.size(); i++)
 							{
-								m_vBuffer[i].MoveWindow(m_pEventHandler->WindowSize());
+								m_vBuffer[i].MoveWindow(consumed);
 							}
 						}
 					}

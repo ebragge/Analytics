@@ -27,7 +27,7 @@ UINT StreamAnalytics::WindowSize()
 
 //RingBuffer calls this function when it has data. 
 //This function should finish relatively quickly.
-void StreamAnalytics::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
+UINT StreamAnalytics::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
 {
 	m_counter++;
 	double amplitude = 0;
@@ -56,6 +56,7 @@ void StreamAnalytics::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
 			m_pObserver->SetGraph(i, windows[i].getWindow());
 		}
 	}
+	return WindowSize();
 }
 
 void StreamAnalytics::SampleInformation(UINT cChannels, UINT wBitsPerSample, UINT nSamplesPerSec)

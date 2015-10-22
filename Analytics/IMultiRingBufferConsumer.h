@@ -7,7 +7,7 @@ public:
 
 	enum State { Started, ReStarted, Stopped };
 //Setters
-	virtual void ConsumeNewWindow(std::vector<RingBuffer::Window> &windows) = 0;
+	virtual UINT ConsumeNewWindow(std::vector<RingBuffer::Window> &windows) = 0;
 	virtual void SampleInformation(UINT cChannels, UINT wBitsPerSample, UINT nSamplesPerSec) = 0;
 	virtual void StateChanged(State newState) = 0;
 

@@ -173,7 +173,7 @@ HRESULT WavWriter::FixWAVHeader()
 }
 
 //From Setters IMultiRingBufferConsumer
-void WavWriter::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
+UINT WavWriter::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
 {
 	Platform::Array<BYTE, 1> ^dataByte = ref new Platform::Array<BYTE, 1>(m_cWindowSize*m_nChannels*m_nBitsPerSample / 8);
 	auto p = (INT16*)dataByte->Data;
@@ -188,6 +188,8 @@ void WavWriter::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
 	}
 
 	Write(dataByte);
+
+	return WindowSize();
 }
 
 void WavWriter::SampleInformation(UINT nChannels, UINT wBitsPerSample, UINT nSamplesPerSec)

@@ -12,7 +12,7 @@ public:
 	void SetObserver(AudioControlData *pObserver);
 	
 	//From IRingBufferConsumer
-	virtual void ConsumeNewWindow(std::vector<RingBuffer::Window> &windows);
+	virtual UINT ConsumeNewWindow(std::vector<RingBuffer::Window> &windows);
 	virtual void SampleInformation(UINT cChannels, UINT wBitsPerSample, UINT nSamplesPerSec);
 	virtual void StateChanged(State newState);
 

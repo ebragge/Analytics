@@ -14,9 +14,6 @@ RingBuffer::RingBuffer()
 	m_iWriteNextBufferItem = 0;
 }
 
-
-
-
 RingBuffer::~RingBuffer()
 {
 
