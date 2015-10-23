@@ -27,10 +27,7 @@ protected:
 	void OnDeviceStateChange(Object^ sender, DeviceStateChangedEventArgs^ e);
 
 private:
-	std::vector< ComPtr<WASAPICapture>> m_devices;
-	std::vector<EventRegistrationToken> m_tokens;
-	SyncMultiRingBuffer *m_RingBuffer;
-
-
+	std::vector< ComPtr<WASAPICapture>> m_vDevices;
+	SyncMultiRingBuffer *m_pRingBuffer;
 };
 

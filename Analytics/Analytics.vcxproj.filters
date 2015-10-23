@@ -29,6 +29,9 @@
     <Filter Include="Analytics\Consumers">
       <UniqueIdentifier>{6c3f3335-dcf5-43a5-ac1a-acaf3f871b78}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Analytics\Misc">
+      <UniqueIdentifier>{1d528c26-2e92-4284-b893-8ba1b13103a4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml" />
@@ -77,6 +80,9 @@
     </ClCompile>
     <ClCompile Include="WavWriter.cpp">
       <Filter>Analytics\Consumers</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioActivityDetector.cpp">
+      <Filter>Analytics\Misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +138,9 @@
     </ClInclude>
     <ClInclude Include="WavWriter.h">
       <Filter>Analytics\Consumers</Filter>
+    </ClInclude>
+    <ClInclude Include="AudioActivityDetector.h">
+      <Filter>Analytics\Misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

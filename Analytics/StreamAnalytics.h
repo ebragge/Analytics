@@ -2,6 +2,7 @@
 #include "MultiRingBuffer.h"
 #include "IMultiRingBufferConsumer.h"
 #include "AudioControlData.h"
+#include "AudioActivityDetector.h"
 
 class StreamAnalytics :
 	public IMultiRingBufferConsumer
@@ -25,7 +26,11 @@ protected:
 	UINT32 m_write;
 	UINT32 m_nWindowSize;
 	UINT32 m_counter;
+	UINT32 m_cAmplitudeSampleSize;
+	UINT32 m_cDetections = 0;
 
 protected:
-	AudioControlData *m_pObserver;
+	AudioControlData		*m_pObserver;
+	AudioActivityDetector	*m_pAudioActivityDetector;
+
 };

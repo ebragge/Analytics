@@ -7,7 +7,7 @@ using namespace concurrency;
 RealtimeAnalyticsEngine::RealtimeAnalyticsEngine()
 {
 	HRESULT hr = MFStartup(MF_VERSION, MFSTARTUP_LITE);
-	m_devices = std::vector< ComPtr<WASAPICapture>>();
+	m_vDevices = std::vector< ComPtr<WASAPICapture>>();
 }
 
 IAsyncAction^ RealtimeAnalyticsEngine::InitializeAsync()
@@ -50,7 +50,7 @@ IAsyncAction^ RealtimeAnalyticsEngine::InitializeAsync()
 							capture->DeviceStateChangedToken = capture->DeviceStateChangedEv->StateChangedEvent +=
 								ref new DeviceStateChangedHandler(this, &RealtimeAnalyticsEngine::OnDeviceStateChange);
 							
-							m_devices.push_back(capture);
+							m_vDevices.push_back(capture);
 
 							OutputDebugString(capture->Name->Data());
 							OutputDebugString(capture->ID->Data());
@@ -66,15 +66,15 @@ IAsyncAction^ RealtimeAnalyticsEngine::InitializeAsync()
 		})
 			.then([this]()
 		{
-			if (m_devices.size() > 0)
+			if (m_vDevices.size() > 0)
 			{
 				
-				m_RingBuffer = new SyncMultiRingBuffer();
-				m_RingBuffer->SetConsumer(m_pRingBufferConsumer);
+				m_pRingBuffer = new SyncMultiRingBuffer();
+				m_pRingBuffer->SetConsumer(m_pRingBufferConsumer);
 
-				for (int i = 0; i < m_devices.size(); i++)
+				for (int i = 0; i < m_vDevices.size(); i++)
 				{
-					m_devices[i]->InitializeAudioDeviceAsync(i, m_RingBuffer);
+					m_vDevices[i]->InitializeAudioDeviceAsync(i, m_pRingBuffer);
 				}
 			}
 		});
@@ -83,11 +83,11 @@ IAsyncAction^ RealtimeAnalyticsEngine::InitializeAsync()
 
 void RealtimeAnalyticsEngine::StopAsync()
 {
-	if (m_devices.size() > 0)
+	if (m_vDevices.size() > 0)
 	{
-		for (int i = 0; i < m_devices.size(); i++)
+		for (int i = 0; i < m_vDevices.size(); i++)
 		{
-			m_devices[i]->StopCaptureAsync();
+			m_vDevices[i]->StopCaptureAsync();
 		}
 	}
 }
@@ -99,9 +99,13 @@ void RealtimeAnalyticsEngine::OnDeviceStateChange(Object^ sender, DeviceStateCha
 	// Handle state specific messages
 	switch (e->State)
 	{
+	case DeviceState::DeviceStateDiscontinuity:
+		OutputDebugString(L"DeviceStateDiscontinuity\n");
+		break;
+
 	case DeviceState::DeviceStateInitialized:
 		OutputDebugString(L"DeviceStateInitialized\n");
-		m_devices.at(e->DeviceID)->StartCaptureAsync();
+		m_vDevices.at(e->DeviceID)->StartCaptureAsync();
 		break;
 
 	case DeviceState::DeviceStatePlaying:
@@ -112,15 +116,15 @@ void RealtimeAnalyticsEngine::OnDeviceStateChange(Object^ sender, DeviceStateCha
 		break;
 	case DeviceState::DeviceStateStopped:
 		OutputDebugString(L"DeviceStateStopped\n");
-		if (m_devices[e->DeviceID] != nullptr)
+		if (m_vDevices[e->DeviceID] != nullptr)
 		{
-			m_devices[e->DeviceID]->DeviceStateChangedEv->StateChangedEvent -= m_devices[e->DeviceID]->DeviceStateChangedToken;
-			m_devices[e->DeviceID] = nullptr;
+			m_vDevices[e->DeviceID]->DeviceStateChangedEv->StateChangedEvent -= m_vDevices[e->DeviceID]->DeviceStateChangedToken;
+			m_vDevices[e->DeviceID] = nullptr;
 		}
 
-		for (int i = 0; i < m_devices.size(); i++)
+		for (int i = 0; i < m_vDevices.size(); i++)
 		{
-			if (m_devices[e->DeviceID] != nullptr)
+			if (m_vDevices[e->DeviceID] != nullptr)
 			{
 				readyToClean = false;
 			}
@@ -128,9 +132,9 @@ void RealtimeAnalyticsEngine::OnDeviceStateChange(Object^ sender, DeviceStateCha
 
 		if (readyToClean)
 		{
-			m_devices.clear();
-			delete m_RingBuffer;
-			m_RingBuffer = nullptr;
+			m_vDevices.clear();
+			delete m_pRingBuffer;
+			m_pRingBuffer = nullptr;
 		}
 
 		break;

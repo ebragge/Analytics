@@ -146,6 +146,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AudioActivityDetector.h" />
     <ClInclude Include="AnalyticsConfiguration.h" />
     <ClInclude Include="RecordingAnalyticsEngine.h" />
     <ClInclude Include="AnalyzeRecording.xaml.h">
@@ -219,6 +220,7 @@
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AudioActivityDetector.cpp" />
     <ClCompile Include="AnalyticsConfiguration.cpp" />
     <ClCompile Include="RecordingAnalyticsEngine.cpp" />
     <ClCompile Include="AnalyzeRecording.xaml.cpp">

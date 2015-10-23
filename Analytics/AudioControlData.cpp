@@ -6,7 +6,7 @@ AudioControlData::AudioControlData()
 {
 	m_vBuffer = std::vector<int16>(1000, 0);
 	m_vGraphs = std::vector<std::vector<INT16>>();
-
+	m_arrMap = std::map<std::wstring, UINT>();
 	m_write = 0;
 }
 
@@ -36,6 +36,24 @@ std::vector<INT16> AudioControlData::GetData(UINT &startPos)
 	std::vector<INT16> vect(m_vBuffer);
 	startPos = (UINT)m_write;
 	return vect;
+}
+
+void AudioControlData::SetMapVal(std::wstring name, UINT val)
+{
+	std::unique_lock<std::mutex> lock(mMutex);
+	//Not yet implemented
+}
+
+void AudioControlData::SetMap(std::map<std::wstring, UINT> &arrCounters)
+{
+	std::unique_lock<std::mutex> lock(mMutex);
+	m_arrMap = std::map<std::wstring, UINT>(arrCounters);
+}
+
+std::map<std::wstring, UINT> AudioControlData::GetMap()
+{
+	std::unique_lock<std::mutex> lock(mMutex);
+	return m_arrMap;
 }
 
 void AudioControlData::SetGraph(UINT ch, const std::vector<INT16> &data)

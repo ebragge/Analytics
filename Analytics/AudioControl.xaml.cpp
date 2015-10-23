@@ -19,6 +19,8 @@ using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Navigation;
 using namespace Windows::UI;
 using namespace Microsoft::Graphics::Canvas::Brushes;
+using namespace Microsoft::Graphics::Canvas::Text;
+using namespace Microsoft::Graphics::Canvas;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -36,15 +38,14 @@ void AudioControl::OnDraw(::Microsoft::Graphics::Canvas::UI::Xaml::CanvasAnimate
 	auto brush = ref new CanvasSolidColorBrush(canvasControl->Device, Colors::Red);
 	args->DrawingSession->DrawLine(0, DataHeight / 2, m_width, DataHeight / 2, brush);
 	
-	float step = m_width / m_pData->m_vBuffer.size();
+	UINT pos = 0;
+	std::vector<INT16> data = m_pData->GetData(pos);
+
+	float step = m_width / data.size();
 	float step_y = DataHeight / 32767;
 	float half = DataHeight / 2;
 	
-	UINT pos = 0;
-
-	std::vector<INT16> data = m_pData->GetData(pos);
-
-	for (size_t i = 0; i < m_pData->m_vBuffer.size(); i++)
+	for (size_t i = 0; i < data.size(); i++)
 	{
 		args->DrawingSession->DrawRectangle(step*i, half, step, data[pos], brush);
 		pos = ++pos < data.size() ? pos : 0;
@@ -80,14 +81,20 @@ void AudioControl::OnDraw(::Microsoft::Graphics::Canvas::UI::Xaml::CanvasAnimate
 
 	}
 
-	
+	auto map = m_pData->GetMap();
+
+	for (auto const &ent1 : map)
+	{
+		args->DrawingSession->DrawText(ref new String(ent1.first.c_str()), 100, 400, Colors::Yellow);
+		args->DrawingSession->DrawText(ent1.second.ToString(), 100, 450, Colors::Yellow);
+	}
+
 }
 
 void AudioControl::OnCreateResources(::Microsoft::Graphics::Canvas::UI::Xaml::CanvasAnimatedControl ^sender, ::Microsoft::Graphics::Canvas::UI::CanvasCreateResourcesEventArgs ^args)
 {
 
 }
-
 
 
 void AudioControl::OnCanvasSizeChanged(::Microsoft::Graphics::Canvas::UI::Xaml::CanvasAnimatedControl ^sender, ::Windows::UI::Xaml::SizeChangedEventArgs ^args)
