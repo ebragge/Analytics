@@ -4,10 +4,12 @@
 
 AudioControlData::AudioControlData()
 {
-	m_vBuffer = std::vector<int16>(1000, 0);
-	m_vGraphs = std::vector<std::vector<INT16>>();
+	m_vMovingGraphs = std::vector<std::vector<double>>();
+	m_vMovingGraphsMax = std::vector<double>();
+	m_vMovingGraphsCounter = std::vector<UINT>();
+
+	m_vStaticGraphs = std::vector<std::vector<INT16>>();
 	m_arrMap = std::map<std::wstring, UINT>();
-	m_write = 0;
 }
 
 
@@ -16,75 +18,85 @@ AudioControlData::~AudioControlData()
 
 }
 
-void AudioControlData::AddData(std::vector<INT16> &vData)
+void AudioControlData::AddMovingGraphData(UINT ch, std::vector<double> &vData)
 {
-	std::unique_lock<std::mutex> lock(mMutex);
+	if (m_vMovingGraphs.size() <= ch)
+	{
+		m_vMovingGraphs.push_back(std::vector<double>(1000));
+		m_vMovingGraphsCounter.push_back(0);
+		m_vMovingGraphsMax.push_back(0.01);
+	}
 
 	for (size_t i = 0; i < vData.size(); i++)
 	{
-		m_write = ++m_write < m_vBuffer.size() ?
-			m_write :
+		m_vMovingGraphsCounter[ch] = ++m_vMovingGraphsCounter[ch] < m_vMovingGraphs[ch].size() ?
+			m_vMovingGraphsCounter[ch] :
 			0;
 
-		m_vBuffer[m_write] = vData[i];
+		m_vMovingGraphs[ch][m_vMovingGraphsCounter[ch]] = vData[i];
+
+		if (vData[i] > m_vMovingGraphsMax[ch])
+		{
+			m_vMovingGraphsMax[ch] = vData[i];
+		}
 	}
 }
 
-std::vector<INT16> AudioControlData::GetData(UINT &startPos)
+std::vector<double> const & AudioControlData::GetMovingGraphData(UINT ch, UINT &startPos, double &dMax)
 {
-	std::unique_lock<std::mutex> lock(mMutex);
-	std::vector<INT16> vect(m_vBuffer);
-	startPos = (UINT)m_write;
-	return vect;
-}
-
-void AudioControlData::SetMapVal(std::wstring name, UINT val)
-{
-	std::unique_lock<std::mutex> lock(mMutex);
-	//Not yet implemented
+	if (ch >= m_vMovingGraphs.size())
+	{
+		m_vMovingGraphs.push_back(std::vector<double>(1000));
+		m_vMovingGraphsCounter.push_back(0);
+		m_vMovingGraphsMax.push_back(0.01);
+		return m_vMovingGraphs[ch];
+	}
+	else
+	{
+		dMax = m_vMovingGraphsMax[ch];
+		startPos = (UINT)m_vMovingGraphsCounter[ch];
+		return m_vMovingGraphs[ch];
+	}
 }
 
 void AudioControlData::SetMap(std::map<std::wstring, UINT> &arrCounters)
 {
-	std::unique_lock<std::mutex> lock(mMutex);
 	m_arrMap = std::map<std::wstring, UINT>(arrCounters);
 }
 
-std::map<std::wstring, UINT> AudioControlData::GetMap()
+std::map<std::wstring, UINT> const & AudioControlData::GetMap() const
 {
-	std::unique_lock<std::mutex> lock(mMutex);
 	return m_arrMap;
 }
 
-void AudioControlData::SetGraph(UINT ch, const std::vector<INT16> &data)
+void AudioControlData::SetStaticGraph(UINT ch, const std::vector<INT16> &data)
 {
-	std::unique_lock<std::mutex> lock(mMutex);
-	if (m_vGraphs.size() > ch)
+	if (m_vStaticGraphs.size() > ch)
 	{
-		m_vGraphs[ch] = data;
+		m_vStaticGraphs[ch] = data;
 	}
 	else
 	{
-		while (m_vGraphs.size() <= ch)
+		while (m_vStaticGraphs.size() <= ch)
 		{
-			m_vGraphs.push_back(std::vector<INT16>());
+			m_vStaticGraphs.push_back(std::vector<INT16>());
 		}
-		m_vGraphs[ch] = data;
+		m_vStaticGraphs[ch] = data;
 	}
 }
 
-std::vector<INT16> AudioControlData::GetGraph(UINT ch)
+std::vector<std::vector<INT16>> const & AudioControlData::GetStaticGraphs() const
 {
-	std::unique_lock<std::mutex> lock(mMutex);
-	if (m_vGraphs.size() > ch)
-	{
-		std::vector<INT16> vect(m_vGraphs[ch]);
-		return vect;
-	}
+	return m_vStaticGraphs;
 }
 
-UINT AudioControlData::GetNumberOfGraphs()
+bool AudioControlData::Lock()
 {
-	std::unique_lock<std::mutex> lock(mMutex);
-	return m_vGraphs.size();
+	using Ms = std::chrono::milliseconds;
+	return m_mMutex.try_lock_for(Ms(100));
+}
+
+void AudioControlData::Unlock()
+{
+	m_mMutex.unlock();
 }

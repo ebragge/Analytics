@@ -6,7 +6,7 @@ using namespace Platform;
 
 StreamAnalytics::StreamAnalytics()
 {
-	m_vBuffer = std::vector<INT16>(10,0);
+	m_vBuffer = std::vector<double>(10,0);
 	m_counter = 0;
 	m_pAudioActivityDetector = new AudioActivityDetector();
 }
@@ -30,11 +30,9 @@ UINT StreamAnalytics::WindowSize()
 //This function should finish relatively quickly.
 UINT StreamAnalytics::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
 {
-	UINT consumedSamples = 0;
-
 	m_counter++;
 	
-	double amplitudeAvg = 0; //amplitude average for 2ms period
+	double amplitudeAvg = 0; //amplitude average for 10ms period
 
 	for (size_t i = 0; i < WindowSize() ; i++)
 	{
@@ -43,45 +41,49 @@ UINT StreamAnalytics::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
 
 	amplitudeAvg /= m_cAmplitudeSampleSize;
 
-	bool bDetection = m_pAudioActivityDetector->DoDetection(amplitudeAvg);
+	bool changed = m_pAudioActivityDetector->DoDetection(amplitudeAvg);
 
 	m_write = ++m_write < m_vBuffer.size() ?
 		m_write :
 		0;
 
-	if (m_write == 0)
+	if (m_pObserver->Lock())
 	{
-		m_pObserver->AddData(m_vBuffer);
-	}
-
-	if (bDetection)
-		m_cDetections++;
-
-	if (m_cDetections %10 == 1)
-	{
-		std::map<std::wstring, UINT> map = std::map<std::wstring, UINT>();
-		map[L"Detections"] = m_cDetections;
-
-		m_pObserver->SetMap(map);
-	}
-
-	m_vBuffer[m_write] = amplitudeAvg;
-	
-	if (bDetection && m_counter > 100)
-	{
-		m_cDetections++;
-		m_counter = 0;
-		for (size_t i = 0; i < windows.size(); i++)
+		if (m_write == 0)
 		{
-			m_pObserver->SetGraph(i, windows[i].getWindow());
+			m_pObserver->AddMovingGraphData(0,m_vBuffer);
 		}
+
+		m_vBuffer[m_write] = amplitudeAvg;
+
+		if (changed && m_pAudioActivityDetector->IsActive())
+		{
+			m_cDetections++;
+		}
+		
+		if (m_cDetections %10 == 1)
+		{
+			std::map<std::wstring, UINT> map = std::map<std::wstring, UINT>();
+			map[L"Detections"] = m_cDetections;
+			m_pObserver->SetMap(map);
+		}
+
+		if (changed && m_counter > 100)
+		{
+			m_counter = 0;
+			for (size_t i = 0; i < windows.size(); i++)
+			{
+				m_pObserver->SetStaticGraph(i, windows[i].getWindow());
+			}
+		}
+		m_pObserver->Unlock();
 	}
 	return m_cAmplitudeSampleSize;
 }
 
 void StreamAnalytics::SampleInformation(UINT cChannels, UINT wBitsPerSample, UINT nSamplesPerSec)
 {
-	m_cAmplitudeSampleSize = nSamplesPerSec / 500; // 2ms 
+	m_cAmplitudeSampleSize = nSamplesPerSec / 100; // 10ms 
 }
 
 void StreamAnalytics::StateChanged(State newState)

@@ -22,7 +22,7 @@ public:
 
 protected:
 
-	std::vector<INT16> m_vBuffer;
+	std::vector<double> m_vBuffer;
 	UINT32 m_write;
 	UINT32 m_nWindowSize;
 	UINT32 m_counter;

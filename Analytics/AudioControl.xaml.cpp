@@ -35,60 +35,65 @@ AudioControl::AudioControl()
 
 void AudioControl::OnDraw(::Microsoft::Graphics::Canvas::UI::Xaml::CanvasAnimatedControl^ canvasControl, ::Microsoft::Graphics::Canvas::UI::Xaml::CanvasAnimatedDrawEventArgs^ args)
 {
-	auto brush = ref new CanvasSolidColorBrush(canvasControl->Device, Colors::Red);
-	args->DrawingSession->DrawLine(0, DataHeight / 2, m_width, DataHeight / 2, brush);
-	
-	UINT pos = 0;
-	std::vector<INT16> data = m_pData->GetData(pos);
-
-	float step = m_width / data.size();
-	float step_y = DataHeight / 32767;
-	float half = DataHeight / 2;
-	
-	for (size_t i = 0; i < data.size(); i++)
+	if (m_pData->Lock())
 	{
-		args->DrawingSession->DrawRectangle(step*i, half, step, data[pos], brush);
-		pos = ++pos < data.size() ? pos : 0;
-	}
 
-	//We draw graphs
-	UINT size = m_pData->GetNumberOfGraphs();
+		auto brush = ref new CanvasSolidColorBrush(canvasControl->Device, Colors::Red);
+		args->DrawingSession->DrawLine(0, DataHeight / 2, m_width, DataHeight / 2, brush);
 	
-	for (size_t i = 0; i < size; i++)
-	{
-		auto brush = ref new CanvasSolidColorBrush(canvasControl->Device, Colors::Green);
-		float Middle = DataHeight + ((m_height - DataHeight) / (size + 1)*i+1);
-		float Height = (m_height - DataHeight) / (size + 1);
-		args->DrawingSession->DrawLine(0, Middle, m_width, Middle, brush);
+		UINT pos = 0;
+		double dMax = 0.01;
 
-		std::vector<INT16> vector = m_pData->GetGraph(i);
-		float pointLength = m_width / vector.size();
-		INT16 max = *std::max_element(vector.begin(), vector.end());
+		std::vector<double> data = m_pData->GetMovingGraphData(0,pos, dMax);
 
-		float x0 = 0;
-		float y0 = Middle + ((Height/max)/2)*vector[0];
-
-		for (size_t j = 1; j < vector.size(); j++)
+		float step = m_width / data.size();
+		float step_y = DataHeight / dMax;
+		float half = DataHeight / 2;
+	
+		for (size_t i = 0; i < data.size(); i++)
 		{
-			float x1 = j*pointLength;
-			float y1 = Middle + ((Height / max) / 2)*vector[j];
-
-			args->DrawingSession->DrawLine(x0, y0, x1, y1, brush);
-
-			x0 = x1;
-			y0 = y1;
+			args->DrawingSession->DrawRectangle(step*i, half, step, data[pos] * step_y, brush);
+			pos = ++pos < data.size() ? pos : 0;
 		}
 
+		//Draw static graphs
+		auto vStaticGraphs = m_pData->GetStaticGraphs();
+
+		for (size_t i = 0; i < vStaticGraphs.size(); i++)
+		{
+			auto brush = ref new CanvasSolidColorBrush(canvasControl->Device, Colors::Green);
+			float Middle = DataHeight + ((m_height - DataHeight) / (vStaticGraphs.size() + 1)*i + 1);
+			float Height = (m_height - DataHeight) / (vStaticGraphs.size() + 1);
+			args->DrawingSession->DrawLine(0, Middle, m_width, Middle, brush);
+
+			float pointLength = m_width / vStaticGraphs[i].size();
+			INT16 max = *std::max_element(vStaticGraphs[i].begin(), vStaticGraphs[i].end());
+
+			float x0 = 0;
+			float y0 = Middle + ((Height / max) / 2)*vStaticGraphs[i][0];
+
+			for (size_t j = 1; j < vStaticGraphs[i].size(); j++)
+			{
+				float x1 = j*pointLength;
+				float y1 = Middle + ((Height / max) / 2)*vStaticGraphs[i][j];
+
+				args->DrawingSession->DrawLine(x0, y0, x1, y1, brush);
+
+				x0 = x1;
+				y0 = y1;
+			}
+		}
+
+		//Draw counters
+		auto map = m_pData->GetMap();
+
+		for (auto const &ent1 : map)
+		{
+			args->DrawingSession->DrawText(ref new String(ent1.first.c_str()), 100, 400, Colors::Yellow);
+			args->DrawingSession->DrawText(ent1.second.ToString(), 100, 450, Colors::Yellow);
+		}
+		m_pData->Unlock();
 	}
-
-	auto map = m_pData->GetMap();
-
-	for (auto const &ent1 : map)
-	{
-		args->DrawingSession->DrawText(ref new String(ent1.first.c_str()), 100, 400, Colors::Yellow);
-		args->DrawingSession->DrawText(ent1.second.ToString(), 100, 450, Colors::Yellow);
-	}
-
 }
 
 void AudioControl::OnCreateResources(::Microsoft::Graphics::Canvas::UI::Xaml::CanvasAnimatedControl ^sender, ::Microsoft::Graphics::Canvas::UI::CanvasCreateResourcesEventArgs ^args)

@@ -1,30 +1,36 @@
 #pragma once
+#include <mutex>
+#include <thread>
+#include <vector>
+
 class AudioControlData
 {
 public:
 	AudioControlData();
 	~AudioControlData();
 	
-	void AddData(std::vector<INT16> &vData);
-	std::vector<INT16> GetData(UINT &startPos);
+	void AddMovingGraphData(UINT ch, std::vector<double> &vData);
+	std::vector<double> const & GetMovingGraphData(UINT ch, UINT &startPos, double &dMax);
+	
+	void SetStaticGraph(UINT ch, const std::vector<INT16> &data);
+	std::vector<std::vector<INT16>> const & GetStaticGraphs() const;
 
 	void SetMap(std::map<std::wstring, UINT> &arrCounters);
-	void SetMapVal(std::wstring name, UINT val);
-	std::map<std::wstring, UINT> GetMap();
+	std::map<std::wstring, UINT> const & GetMap() const;
 
-	void SetGraph(UINT ch, const std::vector<INT16> &data);
-	std::vector<INT16> GetGraph(UINT ch);
-	UINT GetNumberOfGraphs();
+	bool Lock();
+	void Unlock();
 	
 private:
 	void AddData(INT16 iData);
 
-	UINT m_write;
-	std::vector<INT16> m_vBuffer;
-	std::vector<std::vector<INT16>> m_vGraphs;
+	std::vector<UINT> m_vMovingGraphsCounter;
+	std::vector<std::vector<double>> m_vMovingGraphs;
+	std::vector<double> m_vMovingGraphsMax;
+	std::vector<std::vector<INT16>> m_vStaticGraphs;
 	std::map<std::wstring, UINT> m_arrMap;
 
 private:
-	std::mutex mMutex;
+	std::timed_mutex m_mMutex;
 };
 

@@ -27,6 +27,6 @@ namespace Analytics
 		float m_height;
 		float m_width;
 
-		const UINT32 DataHeight = 200;
+		const UINT32 DataHeight = 100;
 	};
 }

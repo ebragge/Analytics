@@ -2,7 +2,11 @@
 #include "AudioActivityDetector.h"
 
 
-AudioActivityDetector::AudioActivityDetector()
+AudioActivityDetector::AudioActivityDetector() :
+	m_eState(ActivityState::NoActivity),
+	m_dMovingAvg(0.0),
+	m_dStdDev(0.0),
+	m_dVariance(0.0)
 {
 
 }
@@ -11,6 +15,11 @@ AudioActivityDetector::AudioActivityDetector()
 AudioActivityDetector::~AudioActivityDetector()
 {
 
+}
+
+bool AudioActivityDetector::IsActive()
+{
+	return (m_eState == ActivityState::Activity);
 }
 
 bool AudioActivityDetector::DoDetection(double dAmplitude)
@@ -37,20 +46,27 @@ bool AudioActivityDetector::DoDetection(double dAmplitude)
 	dVariance /= m_vAmplitudeHistory.size();
 
 	dStdDev = sqrt(dVariance);
+	
+	bool bActivityChanged = false;
 
-	//If new amplitude is 3*std(t-1) then we have detected audio activity
-	if (dAmplitude > m_dMovingAvg*3*dStdDev && m_vAmplitudeHistory.size() == m_cMovingAvgWindow)
+	if (m_eState == ActivityState::NoActivity && 
+		m_vAmplitudeHistory.size() == m_cMovingAvgWindow &&
+		dAmplitude > (m_dMovingAvg * 3 * m_dStdDev))
 	{
-		m_dMovingAvg = dMovingAvg;
-		m_dStdDev = dStdDev;
-		m_dVariance = dVariance;
-		return true;
+		m_eState = ActivityState::Activity;
+		bActivityChanged = true;
+		m_dLowLimit = (m_dMovingAvg);
 	}
-	else
+	else if (m_eState == ActivityState::Activity && 
+		dAmplitude < m_dLowLimit) 
 	{
-		m_dMovingAvg = dMovingAvg;
-		m_dStdDev = dStdDev;
-		m_dVariance = dVariance;
-		return false;
+		m_eState = ActivityState::NoActivity;
+		bActivityChanged = true;
 	}
+
+	m_dMovingAvg = dMovingAvg;
+	m_dStdDev = dStdDev;
+	m_dVariance = dVariance;
+	return bActivityChanged;
+
 }
