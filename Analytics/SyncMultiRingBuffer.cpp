@@ -87,7 +87,7 @@ void SyncMultiRingBuffer::AddData(BYTE* pData, DWORD cbBytes, UINT cChannels, st
 			{
 				if (iLastChannel != i)
 				{
-					INT64 QPCDelta = static_cast<INT64>(m_vInitQPCPositionPerChannel[i] - m_vInitQPCPositionPerChannel[iLastChannel]);
+					INT64 QPCDelta = static_cast<INT64>(m_vInitQPCPositionPerChannel[iLastChannel] - m_vInitQPCPositionPerChannel[i]);
 					double QCPDeltaD = QPCDelta / 1000;
 					rDeltas[i] = (QCPDeltaD * (double)m_samplesPerSecond) / 10000;
 				}
@@ -99,6 +99,7 @@ void SyncMultiRingBuffer::AddData(BYTE* pData, DWORD cbBytes, UINT cChannels, st
 
 			for (size_t i = 0; i < rDeltas.size(); i++)
 			{
+				INT rdelta = rDeltas[i];
 				m_vBuffer[i].MoveWindow(rDeltas[i]);
 			}
 

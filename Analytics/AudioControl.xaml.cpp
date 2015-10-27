@@ -44,6 +44,7 @@ void AudioControl::OnDraw(::Microsoft::Graphics::Canvas::UI::Xaml::CanvasAnimate
 		UINT pos = 0;
 		double dMax = 0.01;
 
+		//Draw audio amplitude graph
 		std::vector<double> data = m_pData->GetMovingGraphData(0,pos, dMax);
 
 		float step = m_width / data.size();
@@ -55,7 +56,17 @@ void AudioControl::OnDraw(::Microsoft::Graphics::Canvas::UI::Xaml::CanvasAnimate
 			args->DrawingSession->DrawRectangle(step*i, half, step, data[pos] * step_y, brush);
 			pos = ++pos < data.size() ? pos : 0;
 		}
+		
+		//Draw audio channel delta graph
+		std::vector<double> chDelta = m_pData->GetMovingGraphData(1, pos, dMax);
+		step_y = DataHeight / dMax;
+		for (size_t i = 0; i < chDelta.size(); i++)
+		{
+			args->DrawingSession->DrawRectangle(step*i, 2*DataHeight+half, step, chDelta[pos] * step_y, brush);
+			pos = ++pos < chDelta.size() ? pos : 0;
+		}
 
+		/*
 		//Draw static graphs
 		auto vStaticGraphs = m_pData->GetStaticGraphs();
 
@@ -83,7 +94,7 @@ void AudioControl::OnDraw(::Microsoft::Graphics::Canvas::UI::Xaml::CanvasAnimate
 				y0 = y1;
 			}
 		}
-
+		*/
 		//Draw counters
 		auto map = m_pData->GetMap();
 

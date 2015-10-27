@@ -84,6 +84,9 @@
     <ClCompile Include="AudioActivityDetector.cpp">
       <Filter>Analytics\Misc</Filter>
     </ClCompile>
+    <ClCompile Include="ChannelDeltaEstimator.cpp">
+      <Filter>Analytics\Misc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -140,6 +143,9 @@
       <Filter>Analytics\Consumers</Filter>
     </ClInclude>
     <ClInclude Include="AudioActivityDetector.h">
+      <Filter>Analytics\Misc</Filter>
+    </ClInclude>
+    <ClInclude Include="ChannelDeltaEstimator.h">
       <Filter>Analytics\Misc</Filter>
     </ClInclude>
   </ItemGroup>

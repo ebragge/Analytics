@@ -3,6 +3,7 @@
 #include "IMultiRingBufferConsumer.h"
 #include "AudioControlData.h"
 #include "AudioActivityDetector.h"
+#include "ChannelDeltaEstimator.h"
 
 class StreamAnalytics :
 	public IMultiRingBufferConsumer
@@ -23,6 +24,7 @@ public:
 protected:
 
 	std::vector<double> m_vBuffer;
+	std::vector<double> m_vBuffer2;
 	UINT32 m_write;
 	UINT32 m_nWindowSize;
 	UINT32 m_counter;
@@ -32,5 +34,5 @@ protected:
 protected:
 	AudioControlData		*m_pObserver;
 	AudioActivityDetector	*m_pAudioActivityDetector;
-
+	ChannelDeltaEstimator	*m_pChannelDeltaEstimator;
 };

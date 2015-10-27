@@ -6,14 +6,17 @@ using namespace Platform;
 
 StreamAnalytics::StreamAnalytics()
 {
-	m_vBuffer = std::vector<double>(10,0);
+	m_vBuffer = std::vector<double>(10, 0);
+	m_vBuffer2 = std::vector<double>(10, 0);
 	m_counter = 0;
 	m_pAudioActivityDetector = new AudioActivityDetector();
+	m_pChannelDeltaEstimator = new ChannelDeltaEstimator();
 }
 
 StreamAnalytics::~StreamAnalytics()
 {
 	delete m_pAudioActivityDetector;
+	delete m_pChannelDeltaEstimator;
 }
 
 void StreamAnalytics::SetObserver(AudioControlData *pObserver)
@@ -31,7 +34,8 @@ UINT StreamAnalytics::WindowSize()
 UINT StreamAnalytics::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
 {
 	m_counter++;
-	
+	double crossCorrelation = 0;
+
 	double amplitudeAvg = 0; //amplitude average for 10ms period
 
 	for (size_t i = 0; i < WindowSize() ; i++)
@@ -43,6 +47,11 @@ UINT StreamAnalytics::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
 
 	bool changed = m_pAudioActivityDetector->DoDetection(amplitudeAvg);
 
+	if (m_pAudioActivityDetector->IsActive())
+	{
+		crossCorrelation = (double)m_pChannelDeltaEstimator->CalculateCrossCorrelation(windows, m_cAmplitudeSampleSize);
+	}
+
 	m_write = ++m_write < m_vBuffer.size() ?
 		m_write :
 		0;
@@ -52,22 +61,21 @@ UINT StreamAnalytics::ConsumeNewWindow(std::vector<RingBuffer::Window> &windows)
 		if (m_write == 0)
 		{
 			m_pObserver->AddMovingGraphData(0,m_vBuffer);
+			m_pObserver->AddMovingGraphData(1, m_vBuffer2);
 		}
 
 		m_vBuffer[m_write] = amplitudeAvg;
+		m_vBuffer2[m_write] = crossCorrelation;
 
 		if (changed && m_pAudioActivityDetector->IsActive())
 		{
 			m_cDetections++;
-		}
-		
-		if (m_cDetections %10 == 1)
-		{
 			std::map<std::wstring, UINT> map = std::map<std::wstring, UINT>();
 			map[L"Detections"] = m_cDetections;
 			m_pObserver->SetMap(map);
 		}
-
+		
+		
 		if (changed && m_counter > 100)
 		{
 			m_counter = 0;

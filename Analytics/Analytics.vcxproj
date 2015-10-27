@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="AudioActivityDetector.h" />
     <ClInclude Include="AnalyticsConfiguration.h" />
+    <ClInclude Include="ChannelDeltaEstimator.h" />
     <ClInclude Include="RecordingAnalyticsEngine.h" />
     <ClInclude Include="AnalyzeRecording.xaml.h">
       <DependentUpon>AnalyzeRecording.xaml</DependentUpon>
@@ -222,6 +223,7 @@
   <ItemGroup>
     <ClCompile Include="AudioActivityDetector.cpp" />
     <ClCompile Include="AnalyticsConfiguration.cpp" />
+    <ClCompile Include="ChannelDeltaEstimator.cpp" />
     <ClCompile Include="RecordingAnalyticsEngine.cpp" />
     <ClCompile Include="AnalyzeRecording.xaml.cpp">
       <DependentUpon>AnalyzeRecording.xaml</DependentUpon>

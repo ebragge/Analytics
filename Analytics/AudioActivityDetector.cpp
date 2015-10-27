@@ -51,7 +51,7 @@ bool AudioActivityDetector::DoDetection(double dAmplitude)
 
 	if (m_eState == ActivityState::NoActivity && 
 		m_vAmplitudeHistory.size() == m_cMovingAvgWindow &&
-		dAmplitude > (m_dMovingAvg * 3 * m_dStdDev))
+		dAmplitude > (m_dMovingAvg + 3 * m_dStdDev))
 	{
 		m_eState = ActivityState::Activity;
 		bActivityChanged = true;
